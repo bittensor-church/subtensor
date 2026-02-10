@@ -340,7 +340,7 @@ where
     }
 
     fn abi_encode_bytes(data: &[u8]) -> Vec<u8> {
-        let padded_len = (data.len() + 31) / 32 * 32;
+        let padded_len = data.len().div_ceil(32) * 32;
         let mut result = Vec::with_capacity(64 + padded_len);
         // Offset
         let mut offset = [0u8; 32];
