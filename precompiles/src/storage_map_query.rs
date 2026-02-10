@@ -104,7 +104,7 @@ where
         + Dispatchable<PostInfo = PostDispatchInfo>,
     <<R as frame_system::Config>::Lookup as StaticLookup>::Source: From<R::AccountId>,
 {
-    const INDEX: u64 = 2057;
+    const INDEX: u64 = 2060; // 0x80C — was 2057 but that collides with CrowdloanPrecompile
 }
 
 impl<R> Precompile for StorageMapQueryPrecompile<R>
