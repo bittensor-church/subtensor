@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 /// @title ISubtensorStorage - Generic Substrate storage access with automatic SCALE decoding
 /// @notice Specify return type and the precompile handles all encoding/decoding
-/// @dev Precompile address: 0x000000000000000000000000000000000000080C
+/// @dev Precompile address: 0x000000000000000000000000000000000000080F
 ///
 /// Return types:
 ///   0 = bytes   (raw SCALE, no decoding)
@@ -70,7 +70,7 @@ interface ISubtensorStorage {
 
 // ==================== Constants ====================
 
-ISubtensorStorage constant SUBTENSOR_STORAGE = ISubtensorStorage(0x000000000000000000000000000000000000080C);
+ISubtensorStorage constant SUBTENSOR_STORAGE = ISubtensorStorage(0x000000000000000000000000000000000000080F);
 
 // Return types
 uint8 constant RET_BYTES   = 0;
