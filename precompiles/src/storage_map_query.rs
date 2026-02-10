@@ -81,17 +81,17 @@ impl TryFrom<u8> for ReturnType {
 
 pub struct StorageMapQueryPrecompile<R>(PhantomData<R>);
 
-// ==================== Function Selectors ====================
-// Generic typed: getValue(string,string,uint8) - last param is ReturnType
-const SEL_GET_VALUE: [u8; 4] = [0xf2, 0xc2, 0xea, 0x42];
-// Generic typed: getMap(string,string,uint8,bytes,uint8) - hasher + key + ReturnType
-const SEL_GET_MAP: [u8; 4] = [0xd3, 0xa4, 0x1b, 0x53];
-// Generic typed: getDoubleMap(string,string,uint8,bytes,uint8,bytes,uint8) - hashers + keys + ReturnType
-const SEL_GET_DOUBLE_MAP: [u8; 4] = [0xe4, 0xb5, 0x2c, 0x64];
-// Raw bytes version (no decoding): getValueRaw(string,string)
-const SEL_GET_VALUE_RAW: [u8; 4] = [0x89, 0x5e, 0xf9, 0x2c];
-// Raw bytes version: getMapRaw(string,string,uint8,bytes)
-const SEL_GET_MAP_RAW: [u8; 4] = [0xb7, 0x47, 0x1c, 0x6a];
+// ==================== Function Selectors (keccak256) ====================
+// getValue(string,string,uint8) => 0x311959ba
+const SEL_GET_VALUE: [u8; 4] = [0x31, 0x19, 0x59, 0xba];
+// getMap(string,string,uint8,bytes,uint8) => 0x647bb2f3
+const SEL_GET_MAP: [u8; 4] = [0x64, 0x7b, 0xb2, 0xf3];
+// getDoubleMap(string,string,uint8,bytes,uint8,bytes,uint8) => 0xcc1273cc
+const SEL_GET_DOUBLE_MAP: [u8; 4] = [0xcc, 0x12, 0x73, 0xcc];
+// getValueRaw(string,string) => 0x1cb67b10
+const SEL_GET_VALUE_RAW: [u8; 4] = [0x1c, 0xb6, 0x7b, 0x10];
+// getMapRaw(string,string,uint8,bytes) => 0x06940235
+const SEL_GET_MAP_RAW: [u8; 4] = [0x06, 0x94, 0x02, 0x35];
 
 impl<R> PrecompileExt<R::AccountId> for StorageMapQueryPrecompile<R>
 where
