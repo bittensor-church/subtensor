@@ -370,7 +370,7 @@ where
         }
         let mut bytes = [0u8; 8];
         bytes.copy_from_slice(&data[offset + 24..offset + 32]);
-        Ok(usize::from_be_bytes(bytes))
+        Ok(u64::from_be_bytes(bytes) as usize)
     }
 
     fn decode_two_strings(data: &[u8]) -> Result<(Vec<u8>, Vec<u8>), PrecompileFailure> {
