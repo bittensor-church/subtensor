@@ -149,6 +149,8 @@ pub mod pallet {
         VotingPower,
         /// Neuron registration cost precompile
         NeuronRegistrationCost,
+        /// Storage map query precompile
+        StorageMapQuery,
     }
 
     #[pallet::type_value]

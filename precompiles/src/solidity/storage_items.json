@@ -1,0 +1,2130 @@
+[
+  {
+    "pallet_dir": "admin-utils",
+    "pallet": "AdminUtils",
+    "name": "PrecompileEnable",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "PrecompileEnum",
+    "value": "bool",
+    "file": "pallets/admin-utils/src/lib.rs"
+  },
+  {
+    "pallet_dir": "commitments",
+    "pallet": "Commitments",
+    "name": "TimelockedIndex",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Twox64Concat",
+    "key2": "T::AccountId",
+    "value": "Registration<BalanceOf<T",
+    "file": "pallets/commitments/src/lib.rs"
+  },
+  {
+    "pallet_dir": "commitments",
+    "pallet": "Commitments",
+    "name": "UsedSpaceOf",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Twox64Concat",
+    "key2": "T::AccountId",
+    "value": "UsageTracker",
+    "file": "pallets/commitments/src/lib.rs"
+  },
+  {
+    "pallet_dir": "crowdloan",
+    "pallet": "Crowdloan",
+    "name": "Contributions",
+    "type": "Value",
+    "value": "CrowdloanId",
+    "file": "pallets/crowdloan/src/lib.rs"
+  },
+  {
+    "pallet_dir": "crowdloan",
+    "pallet": "Crowdloan",
+    "name": "CurrencyOf",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "CrowdloanId",
+    "hasher2": "Identity",
+    "key2": "T::AccountId",
+    "value": "BalanceOf<T",
+    "file": "pallets/crowdloan/src/lib.rs"
+  },
+  {
+    "pallet_dir": "crowdloan",
+    "pallet": "Crowdloan",
+    "name": "NextCrowdloanId",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "BoundedVec<u8",
+    "value": "MigrationKeyMaxLen",
+    "file": "pallets/crowdloan/src/lib.rs"
+  },
+  {
+    "pallet_dir": "crowdloan",
+    "pallet": "Crowdloan",
+    "name": "PassedCrowdloanId",
+    "type": "Value",
+    "value": "CrowdloanId",
+    "file": "pallets/crowdloan/src/mock.rs"
+  },
+  {
+    "pallet_dir": "drand",
+    "pallet": "Drand",
+    "name": "BeaconConfig",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "BoundedVec<u8",
+    "value": "MigrationKeyMaxLen",
+    "file": "pallets/drand/src/lib.rs"
+  },
+  {
+    "pallet_dir": "drand",
+    "pallet": "Drand",
+    "name": "HasMigrationRun",
+    "type": "Value",
+    "value": "RoundNumber",
+    "file": "pallets/drand/src/lib.rs"
+  },
+  {
+    "pallet_dir": "drand",
+    "pallet": "Drand",
+    "name": "OldestStoredRound",
+    "type": "Value",
+    "value": "RoundNumber",
+    "file": "pallets/drand/src/lib.rs"
+  },
+  {
+    "pallet_dir": "drand",
+    "pallet": "Drand",
+    "name": "Pulses",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "RoundNumber",
+    "value": "Pulse",
+    "file": "pallets/drand/src/lib.rs"
+  },
+  {
+    "pallet_dir": "proxy",
+    "pallet": "Proxy",
+    "name": "Announcements",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "T::AccountId",
+    "value": "(\n            BoundedVec<Announcement<T::AccountId",
+    "file": "pallets/proxy/src/lib.rs"
+  },
+  {
+    "pallet_dir": "proxy",
+    "pallet": "Proxy",
+    "name": "BlockNumberFor",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "T::AccountId",
+    "value": "(\n            BoundedVec<\n                ProxyDefinition<T::AccountId",
+    "file": "pallets/proxy/src/lib.rs"
+  },
+  {
+    "pallet_dir": "proxy",
+    "pallet": "Proxy",
+    "name": "LastCallResult",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "T::AccountId",
+    "value": "DispatchResult",
+    "file": "pallets/proxy/src/lib.rs"
+  },
+  {
+    "pallet_dir": "shield",
+    "pallet": "Shield",
+    "name": "CurrentKey",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "T::Hash",
+    "value": "Submission<T::AccountId",
+    "file": "pallets/shield/src/lib.rs"
+  },
+  {
+    "pallet_dir": "shield",
+    "pallet": "Shield",
+    "name": "KeyHashByBlock",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "BlockNumberFor<T>",
+    "value": "T::Hash",
+    "file": "pallets/shield/src/lib.rs"
+  },
+  {
+    "pallet_dir": "shield",
+    "pallet": "Shield",
+    "name": "NextKey",
+    "type": "Value",
+    "value": "BoundedVec<u8",
+    "file": "pallets/shield/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AccumulatedLeaseDividends",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Active",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ActivityCutoff",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AdjustmentAlpha",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AdjustmentInterval",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AdminFreezeWindow",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Alpha",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AlphaDividendsPerSubnet",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AlphaSigmoidSteepness",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "i16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AlphaValues",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "(u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AssociatedEvmAddress",
+    "type": "Value",
+    "value": "LeaseId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AutoStakeDestination",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "T::AccountId",
+    "value": "(BlockNumberFor<T",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "AutoStakeDestinationColdkeys",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "Vec<T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Axons",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "AxonInfoOf",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "BlockAtRegistration",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Identity",
+    "key2": "u16",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "BlockEmission",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "BlocksSinceLastStep",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Bonds",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUidStorageIndex",
+    "hasher2": "Identity",
+    "key2": "u16",
+    "value": "Vec<(u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "BondsMovingAverage",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "BondsPenalty",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "BondsResetOn",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Burn",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "BurnRegistrationsThisInterval",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "CKBurn",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "CRV3WeightCommits",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "NetUidStorageIndex",
+    "hasher2": "Twox64Concat",
+    "key2": "u64",
+    "value": "// epoch key\n        VecDeque<(\n            T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "CRV3WeightCommitsV2",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "NetUidStorageIndex",
+    "hasher2": "Twox64Concat",
+    "key2": "u64",
+    "value": "// epoch key\n        VecDeque<(\n            T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ChildKeys",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "Vec<(u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ChildkeyTake",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "I96F32",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ColdkeySwapAnnouncementDelay",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ColdkeySwapAnnouncements",
+    "type": "Value",
+    "value": "Option<Vec<u8",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ColdkeySwapDisputes",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "T::AccountId",
+    "value": "BlockNumberFor<T",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ColdkeySwapReannouncementDelay",
+    "type": "Value",
+    "value": "BlockNumberFor<T",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ColdkeySwapRescheduleDuration",
+    "type": "Value",
+    "value": "BlockNumberFor<T",
+    "file": "pallets/subtensor/src/migrations/migrate_coldkey_swap_scheduled_to_announcements.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ColdkeySwapScheduleDuration",
+    "type": "Value",
+    "value": "BlockNumberFor<T",
+    "file": "pallets/subtensor/src/migrations/migrate_coldkey_swap_scheduled_to_announcements.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "CommitRevealWeightsEnabled",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "CommitRevealWeightsVersion",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Consensus",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Delegates",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "T::AccountId",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Difficulty",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "DissolveNetworkScheduleDuration",
+    "type": "Value",
+    "value": "BlockNumberFor<T",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Dividends",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "EMAPriceHalvingBlocks",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Emission",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "FirstEmissionBlockNumber",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "FlowEmaSmoothingFactor",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "FlowNormExponent",
+    "type": "Value",
+    "value": "U64F64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "HasMigrationRun",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "Vec<u8>",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "IdentitiesV2",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "NetUidStorageIndex",
+    "hasher2": "Twox64Concat",
+    "key2": "T::AccountId",
+    "value": "VecDeque<(H256",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ImmuneOwnerUidsLimit",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ImmunityPeriod",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Incentive",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUidStorageIndex",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "IsNetworkMember",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Kappa",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Keys",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Identity",
+    "key2": "u16",
+    "value": "T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LargestLocked",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastAdjustmentBlock",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastColdkeyHotkeyStakeBlock",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "NetUid",
+    "value": "I96F32",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastHotkeyEmissionOnNetuid",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastHotkeySwapOnNetuid",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastMechansimStepBlock",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastRateLimitedBlock",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastTxBlockChildKeyTake",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "T::AccountId",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastTxBlockDelegateTake",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "T::AccountId",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LastUpdate",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUidStorageIndex",
+    "value": "Vec<u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LiquidAlphaOn",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "LoadedEmission",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUidStorageIndex",
+    "hasher2": "Identity",
+    "key2": "u16",
+    "value": "Vec<(u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxAllowedUids",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxAllowedValidators",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxBurn",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxChildkeyTake",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxDelegateTake",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxDifficulty",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxMechanismCount",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "MechId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxRegistrationsPerBlock",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MaxWeightsLimit",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MechanismCountCurrent",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MechanismEmissionSplit",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MinAllowedUids",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MinAllowedWeights",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MinBurn",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MinChildkeyTake",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MinDelegateTake",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MinDifficulty",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "MinNonImmuneUids",
+    "type": "Value",
+    "value": "MechId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkImmunityPeriod",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkLastLockCost",
+    "type": "Value",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkLockReductionInterval",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkMinLockCost",
+    "type": "Value",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkPowRegistrationAllowed",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkRateLimit",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkRegisteredAt",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkRegistrationAllowed",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworkRegistrationStartBlock",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NetworksAdded",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NeuronCertificates",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "NeuronCertificateOf",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NextStakeJobId",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "(Vec<(u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NextSubnetLeaseId",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "LeaseId",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NominatorMinRequiredStake",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NumRootClaim",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "NumStakingColdkeys",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "LeaseId",
+    "value": "SubnetLeaseOf<T",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "OwnedHotkeys",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "T::AccountId",
+    "value": "Vec<T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Owner",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "OwnerHyperparamRateLimit",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "POWRegistrationsThisInterval",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "PalletsOriginOf",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ParentKeys",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "Vec<(u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "PendingOwnerCut",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "PendingRootAlphaDivs",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "PendingServerEmission",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "PendingValidatorEmission",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Prometheus",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "PrometheusInfoOf",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "PruningScores",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RAORecycledForRegistration",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Rank",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RecycleOrBurn",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "RecycleOrBurnEnum",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RegistrationsThisBlock",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RegistrationsThisInterval",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RevealPeriodEpochs",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Twox64Concat",
+    "key2": "T::AccountId",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Rho",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RootAlphaDividendsPerSubnet",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RootClaimable",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "T::AccountId",
+    "value": "BTreeMap<NetUid",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RootClaimed",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "T::AccountId",
+    "value": "RootClaimTypeEnum",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "RootProp",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "U96F32",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ScalingLawPower",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ServingRateLimit",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "StakeThreshold",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "StakeWeight",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "StakingColdkeys",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "T::AccountId",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "StakingColdkeysByIndex",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "u64",
+    "value": "T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "StakingHotkeys",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "T::AccountId",
+    "value": "Vec<T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "StakingOperationRateLimiter",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "NetUid",
+    "hasher2": "Twox64Concat",
+    "key2": "u16",
+    "value": "(H160",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "StartCallDelay",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetAlphaIn",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetAlphaInEmission",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetAlphaInProvided",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetAlphaOut",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetAlphaOutEmission",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetEmaTaoFlow",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "(u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetIdentitiesV3",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "NetUid",
+    "value": "SubnetIdentityOfV3",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetLeaseShares",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "LeaseId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetLeases",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "LeaseId",
+    "hasher2": "Identity",
+    "key2": "T::AccountId",
+    "value": "U64F64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetLimit",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetLocked",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetMechanism",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetMovingAlpha",
+    "type": "Value",
+    "value": "I96F32",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetMovingPrice",
+    "type": "Value",
+    "value": "BlockNumberFor<T",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetOwner",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetOwnerCut",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetOwnerHotkey",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetTAO",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetTaoFlow",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "i64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetTaoInEmission",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetTaoProvided",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetVolume",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u128",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubnetworkN",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "SubtokenEnabled",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TaoFlowCutoff",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "Vec<u8>",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TaoWeight",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TargetRegistrationsPerInterval",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Tempo",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TimelockedWeightCommits",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "NetUidStorageIndex",
+    "hasher2": "Twox64Concat",
+    "key2": "u64",
+    "value": "// epoch key\n        VecDeque<(\n            T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TokenSymbol",
+    "type": "Value",
+    "value": "I64F64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TotalHotkeyAlpha",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u8",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TotalHotkeyAlphaLastEpoch",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TotalHotkeyShares",
+    "type": "DoubleMap",
+    "hasher1": "Blake2_128Concat",
+    "key1": "T::AccountId",
+    "hasher2": "Identity",
+    "key2": "NetUid",
+    "value": "U64F64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TotalIssuance",
+    "type": "Value",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TotalNetworks",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "RateLimitKey<T::AccountId>",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TotalStake",
+    "type": "Value",
+    "value": "TaoCurrency",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TransactionKeyLastBlock",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "T::AccountId",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TransferToggle",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Trust",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TxChildkeyTakeRateLimit",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TxDelegateTakeRateLimit",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "TxRateLimit",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Uids",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<(T::AccountId",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "UsedWork",
+    "type": "Value",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ValidatorPermit",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ValidatorPruneLen",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "ValidatorTrust",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "Vec<u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "VotingPower",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "VotingPowerDisableAtBlock",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "VotingPowerEmaAlpha",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "VotingPowerTrackingEnabled",
+    "type": "DoubleMap",
+    "hasher1": "Identity",
+    "key1": "NetUid",
+    "hasher2": "Blake2_128Concat",
+    "key2": "T::AccountId",
+    "value": "u16",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "WeightCommits",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Weights",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "T::AccountId",
+    "value": "ChainIdentityOfV2",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "WeightsSetRateLimit",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "WeightsVersionKey",
+    "type": "Map",
+    "hasher": "Identity",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "WeightsVersionKeyRateLimit",
+    "type": "Value",
+    "value": "u64",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "subtensor",
+    "pallet": "SubtensorModule",
+    "name": "Yuma3On",
+    "type": "Map",
+    "hasher": "Blake2_128Concat",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/subtensor/src/lib.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "AlphaSqrtPrice",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "U64F64",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "CurrentLiquidity",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "u64",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "CurrentTick",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "TickIndex",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "EnabledUserLiquidity",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "FeeGlobalAlpha",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "U64F64",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "FeeGlobalTao",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "U64F64",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "FeeRate",
+    "type": "DoubleMap",
+    "hasher1": "Twox64Concat",
+    "key1": "NetUid",
+    "hasher2": "Twox64Concat",
+    "key2": "TickIndex",
+    "value": "Tick",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "Positions",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "TaoCurrency",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "ScrapReservoirAlpha",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "AlphaCurrency",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  },
+  {
+    "pallet_dir": "swap",
+    "pallet": "Swap",
+    "name": "Ticks",
+    "type": "Map",
+    "hasher": "Twox64Concat",
+    "key": "NetUid",
+    "value": "bool",
+    "file": "pallets/swap/src/pallet/mod.rs"
+  }
+]

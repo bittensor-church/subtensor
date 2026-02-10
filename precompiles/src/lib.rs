@@ -39,6 +39,7 @@ use crate::neuron_registration_cost::*;
 use crate::proxy::*;
 use crate::sr25519::*;
 use crate::staking::*;
+use crate::storage_map_query::*;
 use crate::storage_query::*;
 use crate::subnet::*;
 use crate::uid_lookup::*;
@@ -57,6 +58,7 @@ mod neuron_registration_cost;
 mod proxy;
 mod sr25519;
 mod staking;
+mod storage_map_query;
 mod storage_query;
 mod subnet;
 mod uid_lookup;
@@ -137,7 +139,7 @@ where
         Self(Default::default())
     }
 
-    pub fn used_addresses() -> [H160; 28] {
+    pub fn used_addresses() -> [H160; 29] {
         [
             hash(1),
             hash(2),
@@ -167,6 +169,7 @@ where
             hash(ProxyPrecompile::<R>::INDEX),
             hash(AddressMappingPrecompile::<R>::INDEX),
             hash(NeuronRegistrationCostPrecompile::<R>::INDEX),
+            hash(StorageMapQueryPrecompile::<R>::INDEX),
         ]
     }
 }
@@ -280,6 +283,9 @@ where
                     handle,
                     PrecompileEnum::NeuronRegistrationCost,
                 )
+            }
+            a if a == hash(StorageMapQueryPrecompile::<R>::INDEX) => {
+                Some(StorageMapQueryPrecompile::<R>::execute(handle))
             }
             _ => None,
         }
