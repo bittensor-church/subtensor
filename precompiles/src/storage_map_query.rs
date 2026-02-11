@@ -93,12 +93,12 @@ const SEL_GET_VALUE_RAW: [u8; 4] = [0x1c, 0xb6, 0x7b, 0x10];
 // getMapRaw(string,string,uint8,bytes) => 0x06940235
 const SEL_GET_MAP_RAW: [u8; 4] = [0x06, 0x94, 0x02, 0x35];
 
-// getSmartValue(string,string) => 0x6f353167
-const SEL_GET_SMART_VALUE: [u8; 4] = [0x6f, 0x35, 0x31, 0x67];
-// getSmartMap(string,string,bytes) => 0x2426839d
-const SEL_GET_SMART_MAP: [u8; 4] = [0x24, 0x26, 0x83, 0x9d];
-// getSmartDoubleMap(string,string,bytes,bytes) => 0x6a107874
-const SEL_GET_SMART_DOUBLE_MAP: [u8; 4] = [0x6a, 0x10, 0x78, 0x74];
+// getSmartValue(string,string) => 0x619457ad
+const SEL_GET_SMART_VALUE: [u8; 4] = [0x61, 0x94, 0x57, 0xad];
+// getSmartMap(string,string,bytes) => 0x6cf6bc45
+const SEL_GET_SMART_MAP: [u8; 4] = [0x6c, 0xf6, 0xbc, 0x45];
+// getSmartDoubleMap(string,string,bytes,bytes) => 0x79615918
+const SEL_GET_SMART_DOUBLE_MAP: [u8; 4] = [0x79, 0x61, 0x59, 0x18];
 
 impl<R> PrecompileExt<R::AccountId> for StorageMapQueryPrecompile<R>
 where
