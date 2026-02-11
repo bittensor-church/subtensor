@@ -93,6 +93,13 @@ const SEL_GET_VALUE_RAW: [u8; 4] = [0x1c, 0xb6, 0x7b, 0x10];
 // getMapRaw(string,string,uint8,bytes) => 0x06940235
 const SEL_GET_MAP_RAW: [u8; 4] = [0x06, 0x94, 0x02, 0x35];
 
+// getSmartValue(string,string) => 0x6f353167
+const SEL_GET_SMART_VALUE: [u8; 4] = [0x6f, 0x35, 0x31, 0x67];
+// getSmartMap(string,string,bytes) => 0x2426839d
+const SEL_GET_SMART_MAP: [u8; 4] = [0x24, 0x26, 0x83, 0x9d];
+// getSmartDoubleMap(string,string,bytes,bytes) => 0x6a107874
+const SEL_GET_SMART_DOUBLE_MAP: [u8; 4] = [0x6a, 0x10, 0x78, 0x74];
+
 impl<R> PrecompileExt<R::AccountId> for StorageMapQueryPrecompile<R>
 where
     R: frame_system::Config + pallet_subtensor::Config + pallet_evm::Config,
@@ -136,6 +143,9 @@ where
             SEL_GET_DOUBLE_MAP => Self::handle_get_double_map_typed(data),
             SEL_GET_VALUE_RAW => Self::handle_get_value_raw(data),
             SEL_GET_MAP_RAW => Self::handle_get_map_raw(data),
+            SEL_GET_SMART_VALUE => Self::handle_smart_get_value(data),
+            SEL_GET_SMART_MAP => Self::handle_smart_get_map(data),
+            SEL_GET_SMART_DOUBLE_MAP => Self::handle_smart_get_double_map(data),
             _ => Err(PrecompileFailure::Error {
                 exit_status: ExitError::Other("Unknown function selector".into()),
             }),
@@ -255,6 +265,315 @@ where
         let full_key = Self::build_storage_map_key(pallet, storage, hasher, map_key);
         let result = sp_io::storage::get(&full_key).unwrap_or_default();
         Self::encode_result(&result, ReturnType::Bytes)
+    }
+
+    // ==================== Smart Handlers ====================
+
+    /// getSmartValue(string pallet, string storage)
+    fn handle_smart_get_value(data: &[u8]) -> fp_evm::PrecompileResult {
+        if data.len() < 64 {
+            return Err(Self::err("Invalid ABI data"));
+        }
+        let (pallet, storage) = Self::decode_two_slices(data)?;
+        let (_, _, return_type) = Self::get_storage_config(pallet, storage)?;
+
+        let key = Self::build_storage_value_key(pallet, storage);
+        let result = sp_io::storage::get(&key).unwrap_or_default();
+        Self::encode_result(&result, return_type)
+    }
+
+    /// getSmartMap(string pallet, string storage, bytes key)
+    fn handle_smart_get_map(data: &[u8]) -> fp_evm::PrecompileResult {
+        if data.len() < 96 {
+            return Err(Self::err("Invalid ABI data"));
+        }
+        let pallet_offset = Self::read_u256_as_usize(data, 0)?;
+        let storage_offset = Self::read_u256_as_usize(data, 32)?;
+        let key_offset = Self::read_u256_as_usize(data, 64)?;
+
+        let pallet = Self::get_slice_at(data, pallet_offset)?;
+        let storage = Self::get_slice_at(data, storage_offset)?;
+        let map_key = Self::get_slice_at(data, key_offset)?;
+
+        let (hasher, _, return_type) = Self::get_storage_config(pallet, storage)?;
+
+        let full_key = Self::build_storage_map_key(pallet, storage, hasher, map_key);
+        let result = sp_io::storage::get(&full_key).unwrap_or_default();
+        Self::encode_result(&result, return_type)
+    }
+
+    /// getSmartDoubleMap(string pallet, string storage, bytes key1, bytes key2)
+    fn handle_smart_get_double_map(data: &[u8]) -> fp_evm::PrecompileResult {
+        if data.len() < 128 {
+            return Err(Self::err("Invalid ABI data"));
+        }
+        let pallet_offset = Self::read_u256_as_usize(data, 0)?;
+        let storage_offset = Self::read_u256_as_usize(data, 32)?;
+        let key1_offset = Self::read_u256_as_usize(data, 64)?;
+        let key2_offset = Self::read_u256_as_usize(data, 96)?;
+
+        let pallet = Self::get_slice_at(data, pallet_offset)?;
+        let storage = Self::get_slice_at(data, storage_offset)?;
+        let key1 = Self::get_slice_at(data, key1_offset)?;
+        let key2 = Self::get_slice_at(data, key2_offset)?;
+
+        let (hasher1, hasher2, return_type) = Self::get_storage_config(pallet, storage)?;
+
+        let mut full_key = Vec::with_capacity(128);
+        full_key.extend_from_slice(&hashing::twox_128(pallet));
+        full_key.extend_from_slice(&hashing::twox_128(storage));
+        Self::append_hashed_key(&mut full_key, hasher1, key1);
+        Self::append_hashed_key(&mut full_key, hasher2, key2);
+
+        let result = sp_io::storage::get(&full_key).unwrap_or_default();
+        Self::encode_result(&result, return_type)
+    }
+
+    /// Resolves the Hasher(s) and ReturnType for a given Pallet/Storage pair.
+    fn get_storage_config(pallet: &[u8], storage: &[u8]) -> Result<(StorageHasher, StorageHasher, ReturnType), PrecompileFailure> {
+        match pallet {
+            b"AdminUtils" => match storage {
+                b"PrecompileEnable" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bool)),
+                _ => Err(Self::err("Unknown AdminUtils storage")),
+            },
+            b"Commitments" => match storage {
+                b"TimelockedIndex" => Ok((StorageHasher::Identity, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                b"UsedSpaceOf" => Ok((StorageHasher::Identity, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                _ => Err(Self::err("Unknown Commitments storage")),
+            },
+            b"Crowdloan" => match storage {
+                b"Contributions" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"CurrencyOf" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"NextCrowdloanId" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"PassedCrowdloanId" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                _ => Err(Self::err("Unknown Crowdloan storage")),
+            },
+            b"Drand" => match storage {
+                b"BeaconConfig" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"HasMigrationRun" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"OldestStoredRound" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"Pulses" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                _ => Err(Self::err("Unknown Drand storage")),
+            },
+            b"Proxy" => match storage {
+                b"Announcements" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"BlockNumberFor" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"LastCallResult" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                _ => Err(Self::err("Unknown Proxy storage")),
+            },
+            b"Shield" => match storage {
+                b"CurrentKey" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"KeyHashByBlock" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"NextKey" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                _ => Err(Self::err("Unknown Shield storage")),
+            },
+            b"SubtensorModule" => match storage {
+                b"AccumulatedLeaseDividends" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"Active" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ActivityCutoff" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"AdjustmentAlpha" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"AdjustmentInterval" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"AdminFreezeWindow" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"Alpha" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bool)),
+                b"AlphaDividendsPerSubnet" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::U64)),
+                b"AlphaSigmoidSteepness" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"AlphaValues" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"AssociatedEvmAddress" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"AutoStakeDestination" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"AutoStakeDestinationColdkeys" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"Axons" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::Bytes)),
+                b"BlockAtRegistration" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"BlockEmission" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"BlocksSinceLastStep" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"Bonds" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"BondsMovingAverage" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"BondsPenalty" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"BondsResetOn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"Burn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"BurnRegistrationsThisInterval" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"CKBurn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"CRV3WeightCommits" => Ok((StorageHasher::Twox64Concat, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                b"CRV3WeightCommitsV2" => Ok((StorageHasher::Twox64Concat, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                b"ChildKeys" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ChildkeyTake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ColdkeySwapAnnouncementDelay" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"ColdkeySwapAnnouncements" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ColdkeySwapDisputes" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ColdkeySwapReannouncementDelay" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ColdkeySwapRescheduleDuration" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ColdkeySwapScheduleDuration" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"CommitRevealWeightsEnabled" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"CommitRevealWeightsVersion" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"Consensus" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"Delegates" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::U16)),
+                b"Difficulty" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"DissolveNetworkScheduleDuration" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"Dividends" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"EMAPriceHalvingBlocks" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"Emission" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"FirstEmissionBlockNumber" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"FlowEmaSmoothingFactor" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"FlowNormExponent" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"HasMigrationRun" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"IdentitiesV2" => Ok((StorageHasher::Twox64Concat, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                b"ImmuneOwnerUidsLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"ImmunityPeriod" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"Incentive" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"IsNetworkMember" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"Kappa" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"Keys" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes32)),
+                b"LargestLocked" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LastAdjustmentBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LastColdkeyHotkeyStakeBlock" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"LastHotkeyEmissionOnNetuid" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"LastHotkeySwapOnNetuid" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LastMechansimStepBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LastRateLimitedBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LastTxBlockChildKeyTake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LastTxBlockDelegateTake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LastUpdate" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"LiquidAlphaOn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"LoadedEmission" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"MaxAllowedUids" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MaxAllowedValidators" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MaxBurn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"MaxChildkeyTake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MaxDelegateTake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MaxDifficulty" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"MaxMechanismCount" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"MaxRegistrationsPerBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MaxWeightsLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MechanismCountCurrent" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"MechanismEmissionSplit" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"MinAllowedUids" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MinAllowedWeights" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MinBurn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"MinChildkeyTake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MinDelegateTake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"MinDifficulty" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"MinNonImmuneUids" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"NetworkImmunityPeriod" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NetworkLastLockCost" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NetworkLockReductionInterval" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NetworkMinLockCost" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NetworkPowRegistrationAllowed" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"NetworkRateLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NetworkRegisteredAt" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NetworkRegistrationAllowed" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::U64)),
+                b"NetworkRegistrationStartBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NetworksAdded" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"NeuronCertificates" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::Bytes)),
+                b"NextStakeJobId" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::Bytes)),
+                b"NextSubnetLeaseId" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"NominatorMinRequiredStake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NumRootClaim" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"NumStakingColdkeys" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"OwnedHotkeys" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"Owner" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"OwnerHyperparamRateLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"POWRegistrationsThisInterval" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"PalletsOriginOf" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::U64)),
+                b"ParentKeys" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"PendingOwnerCut" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"PendingRootAlphaDivs" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"PendingServerEmission" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"PendingValidatorEmission" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"Prometheus" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::Bytes)),
+                b"PruningScores" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"RAORecycledForRegistration" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"Rank" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"RecycleOrBurn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"RegistrationsThisBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"RegistrationsThisInterval" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"RevealPeriodEpochs" => Ok((StorageHasher::Twox64Concat, StorageHasher::Twox64Concat, ReturnType::U64)),
+                b"Rho" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"RootAlphaDividendsPerSubnet" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::U64)),
+                b"RootClaimable" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"RootClaimed" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"RootProp" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ScalingLawPower" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"ServingRateLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"StakeThreshold" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"StakeWeight" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"StakingColdkeys" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"StakingColdkeysByIndex" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes32)),
+                b"StakingHotkeys" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"StakingOperationRateLimiter" => Ok((StorageHasher::Twox64Concat, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                b"StartCallDelay" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetAlphaIn" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetAlphaInEmission" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetAlphaInProvided" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetAlphaOut" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetAlphaOutEmission" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetEmaTaoFlow" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"SubnetIdentitiesV3" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"SubnetLeaseShares" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"SubnetLeases" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"SubnetLimit" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes32)),
+                b"SubnetLocked" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetMechanism" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"SubnetMovingAlpha" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"SubnetMovingPrice" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"SubnetOwner" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes32)),
+                b"SubnetOwnerCut" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"SubnetOwnerHotkey" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes32)),
+                b"SubnetTAO" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetTaoFlow" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"SubnetTaoInEmission" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetTaoProvided" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"SubnetVolume" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U128)),
+                b"SubnetworkN" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"SubtokenEnabled" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"TaoFlowCutoff" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TaoWeight" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TargetRegistrationsPerInterval" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"Tempo" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"TimelockedWeightCommits" => Ok((StorageHasher::Twox64Concat, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                b"TokenSymbol" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"TotalHotkeyAlpha" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"TotalHotkeyAlphaLastEpoch" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"TotalHotkeyShares" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"TotalIssuance" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TotalNetworks" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TotalStake" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TransactionKeyLastBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TransferToggle" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"Trust" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"TxChildkeyTakeRateLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TxDelegateTakeRateLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"TxRateLimit" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bool)),
+                b"Uids" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"UsedWork" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U16)),
+                b"ValidatorPermit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"ValidatorPruneLen" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"ValidatorTrust" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bytes)),
+                b"VotingPower" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::Bool)),
+                b"VotingPowerDisableAtBlock" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"VotingPowerEmaAlpha" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"VotingPowerTrackingEnabled" => Ok((StorageHasher::Identity, StorageHasher::Blake2_128Concat, ReturnType::U16)),
+                b"WeightCommits" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"Weights" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"WeightsSetRateLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"WeightsVersionKey" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"WeightsVersionKeyRateLimit" => Ok((StorageHasher::Identity, StorageHasher::Identity, ReturnType::U64)),
+                b"Yuma3On" => Ok((StorageHasher::Blake2_128Concat, StorageHasher::Identity, ReturnType::Bool)),
+                _ => Err(Self::err("Unknown SubtensorModule storage")),
+            },
+            b"Swap" => match storage {
+                b"AlphaSqrtPrice" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"CurrentLiquidity" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"CurrentTick" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"EnabledUserLiquidity" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bool)),
+                b"FeeGlobalAlpha" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"FeeGlobalTao" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bytes)),
+                b"FeeRate" => Ok((StorageHasher::Twox64Concat, StorageHasher::Twox64Concat, ReturnType::Bytes)),
+                b"Positions" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"ScrapReservoirAlpha" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::U64)),
+                b"Ticks" => Ok((StorageHasher::Twox64Concat, StorageHasher::Identity, ReturnType::Bool)),
+                _ => Err(Self::err("Unknown Swap storage")),
+            },
+            _ => Err(Self::err("Unknown Pallet")),
+        }
     }
 
     // ==================== Result Encoding ====================
