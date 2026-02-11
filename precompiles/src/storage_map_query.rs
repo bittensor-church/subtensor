@@ -98,10 +98,10 @@ where
     R: frame_system::Config + pallet_subtensor::Config + pallet_evm::Config,
     R::AccountId: From<[u8; 32]>,
     <R as frame_system::Config>::RuntimeCall:
-        GetDispatchInfo + Dispatchable<PostInfo = PostDispatchInfo>,
+    GetDispatchInfo + Dispatchable<PostInfo = PostDispatchInfo>,
     <R as frame_system::Config>::RuntimeCall: From<pallet_subtensor::Call<R>>
-        + GetDispatchInfo
-        + Dispatchable<PostInfo = PostDispatchInfo>,
+    + GetDispatchInfo
+    + Dispatchable<PostInfo = PostDispatchInfo>,
     <<R as frame_system::Config>::Lookup as StaticLookup>::Source: From<R::AccountId>,
 {
     const INDEX: u64 = 2063; // 0x80F
@@ -112,10 +112,10 @@ where
     R: frame_system::Config + pallet_subtensor::Config + pallet_evm::Config,
     R::AccountId: From<[u8; 32]>,
     <R as frame_system::Config>::RuntimeCall:
-        GetDispatchInfo + Dispatchable<PostInfo = PostDispatchInfo>,
+    GetDispatchInfo + Dispatchable<PostInfo = PostDispatchInfo>,
     <R as frame_system::Config>::RuntimeCall: From<pallet_subtensor::Call<R>>
-        + GetDispatchInfo
-        + Dispatchable<PostInfo = PostDispatchInfo>,
+    + GetDispatchInfo
+    + Dispatchable<PostInfo = PostDispatchInfo>,
     <<R as frame_system::Config>::Lookup as StaticLookup>::Source: From<R::AccountId>,
 {
     fn execute(handle: &mut impl PrecompileHandle) -> fp_evm::PrecompileResult {
@@ -159,10 +159,10 @@ where
         let storage_offset = Self::read_u256_as_usize(data, 32)?;
         let return_type = ReturnType::try_from(data[95])?; // uint8 at slot 2 (bytes 64..96)
 
-        let pallet = Self::decode_bytes_at(data, pallet_offset)?;
-        let storage = Self::decode_bytes_at(data, storage_offset)?;
+        let pallet = Self::get_slice_at(data, pallet_offset)?;
+        let storage = Self::get_slice_at(data, storage_offset)?;
 
-        let key = Self::build_storage_value_key(&pallet, &storage);
+        let key = Self::build_storage_value_key(pallet, storage);
         let result = sp_io::storage::get(&key).unwrap_or_default();
 
         Self::encode_result(&result, return_type)
@@ -180,12 +180,12 @@ where
         let key_offset = Self::read_u256_as_usize(data, 96)?;
         let return_type = ReturnType::try_from(data[159])?; // uint8 at slot 4
 
-        let pallet = Self::decode_bytes_at(data, pallet_offset)?;
-        let storage = Self::decode_bytes_at(data, storage_offset)?;
-        let map_key = Self::decode_bytes_at(data, key_offset)?;
+        let pallet = Self::get_slice_at(data, pallet_offset)?;
+        let storage = Self::get_slice_at(data, storage_offset)?;
+        let map_key = Self::get_slice_at(data, key_offset)?;
         let hasher = StorageHasher::try_from(hasher_val)?;
 
-        let full_key = Self::build_storage_map_key(&pallet, &storage, hasher, &map_key);
+        let full_key = Self::build_storage_map_key(pallet, storage, hasher, map_key);
         let result = sp_io::storage::get(&full_key).unwrap_or_default();
 
         Self::encode_result(&result, return_type)
@@ -205,16 +205,20 @@ where
         let key2_offset = Self::read_u256_as_usize(data, 160)?;
         let return_type = ReturnType::try_from(data[223])?; // uint8 at slot 6
 
-        let pallet = Self::decode_bytes_at(data, pallet_offset)?;
-        let storage = Self::decode_bytes_at(data, storage_offset)?;
-        let key1 = Self::decode_bytes_at(data, key1_offset)?;
-        let key2 = Self::decode_bytes_at(data, key2_offset)?;
+        let pallet = Self::get_slice_at(data, pallet_offset)?;
+        let storage = Self::get_slice_at(data, storage_offset)?;
+        let key1 = Self::get_slice_at(data, key1_offset)?;
+        let key2 = Self::get_slice_at(data, key2_offset)?;
         let hasher1 = StorageHasher::try_from(hasher1_val)?;
         let hasher2 = StorageHasher::try_from(hasher2_val)?;
 
-        let mut full_key = Self::build_storage_value_key(&pallet, &storage);
-        Self::append_hashed_key(&mut full_key, hasher1, &key1);
-        Self::append_hashed_key(&mut full_key, hasher2, &key2);
+        // Pre-allocate buffer to avoid re-allocation during append
+        let mut full_key = Vec::with_capacity(128);
+        full_key.extend_from_slice(&hashing::twox_128(pallet));
+        full_key.extend_from_slice(&hashing::twox_128(storage));
+        Self::append_hashed_key(&mut full_key, hasher1, key1);
+        Self::append_hashed_key(&mut full_key, hasher2, key2);
+
         let result = sp_io::storage::get(&full_key).unwrap_or_default();
 
         Self::encode_result(&result, return_type)
@@ -227,8 +231,8 @@ where
         if data.len() < 64 {
             return Err(Self::err("Invalid ABI data"));
         }
-        let (pallet, storage) = Self::decode_two_strings(data)?;
-        let key = Self::build_storage_value_key(&pallet, &storage);
+        let (pallet, storage) = Self::decode_two_slices(data)?;
+        let key = Self::build_storage_value_key(pallet, storage);
         let result = sp_io::storage::get(&key).unwrap_or_default();
         Self::encode_result(&result, ReturnType::Bytes)
     }
@@ -243,12 +247,12 @@ where
         let hasher_val = data[95];
         let key_offset = Self::read_u256_as_usize(data, 96)?;
 
-        let pallet = Self::decode_bytes_at(data, pallet_offset)?;
-        let storage = Self::decode_bytes_at(data, storage_offset)?;
-        let map_key = Self::decode_bytes_at(data, key_offset)?;
+        let pallet = Self::get_slice_at(data, pallet_offset)?;
+        let storage = Self::get_slice_at(data, storage_offset)?;
+        let map_key = Self::get_slice_at(data, key_offset)?;
         let hasher = StorageHasher::try_from(hasher_val)?;
 
-        let full_key = Self::build_storage_map_key(&pallet, &storage, hasher, &map_key);
+        let full_key = Self::build_storage_map_key(pallet, storage, hasher, map_key);
         let result = sp_io::storage::get(&full_key).unwrap_or_default();
         Self::encode_result(&result, ReturnType::Bytes)
     }
@@ -373,13 +377,13 @@ where
         Ok(u64::from_be_bytes(bytes) as usize)
     }
 
-    fn decode_two_strings(data: &[u8]) -> Result<(Vec<u8>, Vec<u8>), PrecompileFailure> {
+    fn decode_two_slices(data: &[u8]) -> Result<(&[u8], &[u8]), PrecompileFailure> {
         let o1 = Self::read_u256_as_usize(data, 0)?;
         let o2 = Self::read_u256_as_usize(data, 32)?;
-        Ok((Self::decode_bytes_at(data, o1)?, Self::decode_bytes_at(data, o2)?))
+        Ok((Self::get_slice_at(data, o1)?, Self::get_slice_at(data, o2)?))
     }
 
-    fn decode_bytes_at(data: &[u8], offset: usize) -> Result<Vec<u8>, PrecompileFailure> {
+    fn get_slice_at(data: &[u8], offset: usize) -> Result<&[u8], PrecompileFailure> {
         if offset + 32 > data.len() {
             return Err(Self::err("Invalid offset"));
         }
@@ -389,7 +393,7 @@ where
         if end > data.len() {
             return Err(Self::err("Data out of bounds"));
         }
-        Ok(data[start..end].to_vec())
+        Ok(&data[start..end])
     }
 
     // ==================== Storage Key Building ====================
@@ -402,7 +406,10 @@ where
     }
 
     fn build_storage_map_key(pallet: &[u8], storage: &[u8], hasher: StorageHasher, item_key: &[u8]) -> Vec<u8> {
-        let mut key = Self::build_storage_value_key(pallet, storage);
+        // Pre-allocate buffer to avoid re-allocation during append
+        let mut key = Vec::with_capacity(128);
+        key.extend_from_slice(&hashing::twox_128(pallet));
+        key.extend_from_slice(&hashing::twox_128(storage));
         Self::append_hashed_key(&mut key, hasher, item_key);
         key
     }
