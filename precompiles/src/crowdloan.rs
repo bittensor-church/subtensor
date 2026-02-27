@@ -2,6 +2,7 @@ use alloc::string::String;
 use core::marker::PhantomData;
 
 use fp_evm::{ExitError, PrecompileFailure};
+use frame_support::traits::GetStorageVersion;
 use frame_support::dispatch::{DispatchInfo, GetDispatchInfo, PostDispatchInfo};
 use frame_support::traits::IsSubType;
 use frame_system::RawOrigin;
@@ -247,6 +248,28 @@ where
     #[precompile::view]
     fn get_current_crowdloan_id(_handle: &mut impl PrecompileHandle) -> EvmResult<u32> {
         Ok(pallet_crowdloan::CurrentCrowdloanId::<R>::get().unwrap_or(0))
+    }
+
+    /// Returns if a specific migration has run.
+    #[precompile::public("getHasMigrationRun(bytes32)")]
+    #[precompile::view]
+    fn get_has_migration_run(
+        _handle: &mut impl PrecompileHandle,
+        migration_hash: H256,
+    ) -> EvmResult<bool> {
+        let hash_bytes: [u8; 32] = migration_hash.0;
+        let bounded_key: sp_runtime::BoundedVec<u8, _> = sp_runtime::BoundedVec::try_from(hash_bytes.to_vec()).unwrap_or_default();
+        Ok(pallet_crowdloan::HasMigrationRun::<R>::get(&bounded_key))
+    }
+
+    /// Returns the current pallet version from storage.
+    #[precompile::public("getPalletVersion()")]
+    #[precompile::view]
+    fn get_pallet_version(_handle: &mut impl PrecompileHandle) -> EvmResult<u16> {
+        Ok(
+            <pallet_crowdloan::Pallet<R> as frame_support::traits::PalletInfoAccess>::crate_version()
+                .major as u16
+        )
     }
 }
 

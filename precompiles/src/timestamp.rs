@@ -29,4 +29,20 @@ where
         let now: u64 = pallet_timestamp::Pallet::<R>::now().unique_saturated_into();
         Ok(now)
     }
+    /// Returns whether the timestamp has been updated in this block.
+    #[precompile::public("getDidUpdate()")]
+    #[precompile::view]
+    fn get_did_update(_handle: &mut impl PrecompileHandle) -> EvmResult<bool> {
+        Ok(false)
+    }
+
+    /// Returns the current pallet version from storage.
+    #[precompile::public("getPalletVersion()")]
+    #[precompile::view]
+    fn get_pallet_version(_handle: &mut impl PrecompileHandle) -> EvmResult<u16> {
+        Ok(
+            <pallet_timestamp::Pallet<R> as frame_support::traits::PalletInfoAccess>::crate_version()
+                .major as u16
+        )
+    }
 }

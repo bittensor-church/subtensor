@@ -106,6 +106,19 @@ interface ICrowdloan {
      * @return The current crowdloan ID.
      */
     function getCurrentCrowdloanId() external view returns (uint32);
+
+    /**
+     * @dev Returns if a specific migration has run.
+     * @param migrationHash The hash of the migration.
+     * @return True if the migration has run.
+     */
+    function getHasMigrationRun(bytes32 migrationHash) external view returns (bool);
+
+    /**
+     * @dev Returns the current pallet version from storage.
+     * @return The pallet version.
+     */
+    function getPalletVersion() external view returns (uint16);
 }
 
 struct CrowdloanInfo {

@@ -40,6 +40,9 @@ subtensor-swap-interface.workspace = true
 pallet-crowdloan.workspace = true
 pallet-drand.workspace = true
 pallet-timestamp.workspace = true
+pallet-sudo.workspace = true
+pallet-scheduler.workspace = true
+pallet-multisig.workspace = true
 
 [lints]
 workspace = true
@@ -58,6 +61,9 @@ std = [
 	"pallet-crowdloan/std",
 	"pallet-drand/std",
 	"pallet-timestamp/std",
+	"pallet-sudo/std",
+	"pallet-scheduler/std",
+	"pallet-multisig/std",
 	"pallet-evm-precompile-bn128/std",
 	"pallet-evm-precompile-dispatch/std",
 	"pallet-evm-precompile-modexp/std",

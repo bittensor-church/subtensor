@@ -1,4 +1,5 @@
 use core::marker::PhantomData;
+use frame_support::traits::GetStorageVersion;
 
 use fp_evm::{ExitError, PrecompileFailure};
 use pallet_evm::{BalanceConverter, PrecompileHandle, SubstrateBalance};
@@ -212,5 +213,27 @@ where
             .ok_or(ExitError::InvalidRange)?;
 
         Ok(price_eth)
+    }
+
+    #[precompile::public("getNetworksAdded()")]
+    #[precompile::view]
+    fn get_networks_added(_handle: &mut impl PrecompileHandle) -> EvmResult<Vec<u16>> {
+        let mut result = Vec::new();
+        for (netuid, added) in pallet_subtensor::NetworksAdded::<R>::iter() {
+            if added {
+                result.push(netuid.into());
+            }
+        }
+        Ok(result)
+    }
+
+    /// Returns the current pallet version from storage.
+    #[precompile::public("getPalletVersion()")]
+    #[precompile::view]
+    fn get_pallet_version(_handle: &mut impl PrecompileHandle) -> EvmResult<u16> {
+        Ok(
+            <pallet_subtensor::Pallet<R> as frame_support::traits::PalletInfoAccess>::crate_version()
+                .major as u16
+        )
     }
 }

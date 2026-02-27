@@ -98,4 +98,12 @@ interface IAlpha {
     /// @dev Returns the CK burn rate.
     /// @return The CK burn rate.
     function getCKBurn() external view returns (uint256);
+
+    /// @dev Returns an array of netuids for all added networks.
+    /// @return The list of active netuids.
+    function getNetworksAdded() external view returns (uint16[] memory);
+
+    /// @dev Returns the current pallet version from storage.
+    /// @return The pallet version.
+    function getPalletVersion() external view returns (uint16);
 }

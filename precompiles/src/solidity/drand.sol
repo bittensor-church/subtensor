@@ -21,4 +21,16 @@ interface IDrand {
 
     /// @dev Returns the randomness from the latest stored round as bytes32.
     function getCurrentRandomness() external view returns (bytes32);
+
+    /// @dev Returns the drand beacon configuration.
+    function getBeaconConfig() external view returns (uint64 genesisTime, uint32 period, bytes memory publicKey, bool isConfigured);
+
+    /// @dev Returns if a specific migration has run.
+    function getHasMigrationRun(bytes32 migrationHash) external view returns (bool);
+
+    /// @dev Returns the block when the next unsigned transaction will be accepted.
+    function getNextUnsignedAt() external view returns (uint64);
+
+    /// @dev Returns the current pallet version from storage.
+    function getPalletVersion() external view returns (uint16);
 }

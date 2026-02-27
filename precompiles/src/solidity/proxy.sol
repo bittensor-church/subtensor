@@ -57,4 +57,17 @@ interface IProxy {
     function getLastCallResult(
         bytes32 account
     ) external view returns (bool exists, bool success);
+
+    /// @dev Returns the current pallet version from storage.
+    function getPalletVersion() external view returns (uint16);
+
+    struct Announcement {
+        bytes32 real;
+        bytes32 call_hash;
+        uint32 height;
+    }
+
+    /// @dev Returns the announcements made by the proxy.
+    /// @param account The account ID (bytes32).
+    function getAnnouncements(bytes32 account) external view returns (Announcement[] memory);
 }

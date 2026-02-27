@@ -165,6 +165,16 @@ pub mod pallet {
         Drand,
         /// Timestamp precompile
         Timestamp,
+        /// Scheduler precompile
+        Scheduler,
+        /// Sudo precompile
+        Sudo,
+        /// Multisig precompile
+        Multisig,
+        /// Swap precompile
+        Swap,
+        /// Subtensor extended precompile
+        Subtensor,
     }
 
     /// Deprecation info for a specific precompile function.
