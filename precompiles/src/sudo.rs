@@ -1,5 +1,5 @@
 use core::marker::PhantomData;
-use frame_support::traits::GetStorageVersion;
+
 
 use pallet_evm::PrecompileHandle;
 use precompile_utils::EvmResult;
@@ -7,7 +7,7 @@ use sp_core::H256;
 
 use frame_support::pallet_prelude::Encode;
 
-use crate::PrecompileExt;
+use crate::{PrecompileExt, PrecompileHandleExtStorage};
 
 pub(crate) struct SudoPrecompile<R>(PhantomData<R>);
 
@@ -27,8 +27,10 @@ where
     /// Returns the active sudo key
     #[precompile::public("getKey()")]
     #[precompile::view]
-    fn get_key(_handle: &mut impl PrecompileHandle) -> EvmResult<H256> {
-        match pallet_sudo::Key::<R>::get() {
+    fn get_key(handle: &mut impl PrecompileHandle) -> EvmResult<H256> {
+        let __matched_val = pallet_sudo::Key::<R>::get();
+        handle.record_db_read_encoded::<R>(&__matched_val)?;
+        match __matched_val {
             Some(key) => {
                 // Key is an AccountId, transform to H256
                 let encoded = key.encode();

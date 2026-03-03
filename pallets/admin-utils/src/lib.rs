@@ -23,6 +23,7 @@ pub mod pallet {
     use super::*;
     use frame_support::pallet_prelude::*;
     use frame_support::traits::tokens::Balance;
+    use subtensor_macros::freeze_struct;
     use frame_support::{dispatch::DispatchResult, pallet_prelude::StorageMap};
     use frame_system::pallet_prelude::*;
     use pallet_evm_chain_id::{self, ChainId};
@@ -179,6 +180,7 @@ pub mod pallet {
 
     /// Deprecation info for a specific precompile function.
     #[derive(Encode, Decode, DecodeWithMemTracking, TypeInfo, Clone, PartialEq, Eq, Debug)]
+    #[freeze_struct("f2b0e33f25db907f")]
     pub struct DeprecationInfo {
         /// Replacement precompile address (H160, 20 bytes)
         pub new_precompile: [u8; 20],

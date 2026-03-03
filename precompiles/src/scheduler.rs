@@ -1,12 +1,10 @@
-use alloc::vec;
 use core::marker::PhantomData;
-use frame_support::traits::GetStorageVersion;
 
 use pallet_evm::PrecompileHandle;
 use precompile_utils::EvmResult;
 use sp_core::H256;
 
-use crate::PrecompileExt;
+use crate::{PrecompileExt, PrecompileHandleExtStorage};
 
 pub(crate) struct SchedulerPrecompile<R>(PhantomData<R>);
 
@@ -26,10 +24,12 @@ where
     /// Returns the active scheduler lookup key
     #[precompile::public("getLookup(bytes32)")]
     #[precompile::view]
-    fn get_lookup(_handle: &mut impl PrecompileHandle, name: H256) -> EvmResult<(u64, u32)> {
+    fn get_lookup(handle: &mut impl PrecompileHandle, name: H256) -> EvmResult<(u64, u32)> {
         let name_bytes: [u8; 32] = name.0;
         
-        match pallet_scheduler::Lookup::<R>::get(&name_bytes) {
+        let __matched_val = pallet_scheduler::Lookup::<R>::get(&name_bytes);
+        handle.record_db_read_encoded::<R>(&__matched_val)?;
+        match __matched_val {
             Some((block_number, task_index)) => {
                 use sp_runtime::traits::UniqueSaturatedInto;
                 Ok((
@@ -44,9 +44,11 @@ where
     /// Returns the block number at which the agenda began incomplete execution.
     #[precompile::public("getIncompleteSince()")]
     #[precompile::view]
-    fn get_incomplete_since(_handle: &mut impl PrecompileHandle) -> EvmResult<u64> {
+    fn get_incomplete_since(handle: &mut impl PrecompileHandle) -> EvmResult<u64> {
         use sp_runtime::traits::UniqueSaturatedInto;
-        match pallet_scheduler::IncompleteSince::<R>::get() {
+        let __matched_val = pallet_scheduler::IncompleteSince::<R>::get();
+        handle.record_db_read_encoded::<R>(&__matched_val)?;
+        match __matched_val {
             Some(block_number) => Ok(block_number.unique_saturated_into()),
             None => Ok(0),
         }

@@ -180,5 +180,46 @@ export const IProxyABI = [
     ],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPalletVersion",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "name": "account", "type": "bytes32", "internalType": "bytes32" }],
+    "name": "getLastCallResult",
+    "outputs": [
+      { "name": "exists", "type": "bool", "internalType": "bool" },
+      { "name": "success", "type": "bool", "internalType": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "name": "account", "type": "bytes32", "internalType": "bytes32" }],
+    "name": "getAnnouncements",
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple[]",
+        "internalType": "struct Announcement[]",
+        "components": [
+          { "name": "real", "type": "bytes32", "internalType": "bytes32" },
+          { "name": "callHash", "type": "bytes32", "internalType": "bytes32" },
+          { "name": "height", "type": "uint32", "internalType": "uint32" }
+        ]
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ];

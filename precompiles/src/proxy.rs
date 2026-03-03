@@ -1,11 +1,11 @@
 use core::marker::PhantomData;
 
-use crate::{PrecompileExt, PrecompileHandleExt};
+use crate::{PrecompileExt, PrecompileHandleExt, PrecompileHandleExtStorage};
 
 use alloc::format;
 use fp_evm::{ExitError, PrecompileFailure};
 use frame_support::dispatch::{DispatchInfo, GetDispatchInfo, PostDispatchInfo};
-use frame_support::traits::{IsSubType, GetStorageVersion};
+use frame_support::traits::IsSubType;
 use frame_system::RawOrigin;
 use pallet_evm::{AddressMapping, PrecompileHandle};
 use pallet_subtensor_proxy as pallet_proxy;
@@ -180,6 +180,7 @@ where
         let real_account_id = R::AccountId::from(real.0.into());
 
         let last_call_result = pallet_proxy::LastCallResult::<R>::get(real_account_id);
+        handle.record_db_read_encoded::<R>(&last_call_result)?;
         match last_call_result {
             Some(last_call_result) => match last_call_result {
                 Ok(()) => Ok(()),
@@ -260,14 +261,15 @@ where
     #[precompile::public("getProxies(bytes32)")]
     #[precompile::view]
     pub fn get_proxies(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account_id: H256,
     ) -> EvmResult<Vec<(H256, U256, U256)>> {
         let account_id = R::AccountId::from(account_id.0.into());
 
-        let proxies = pallet_proxy::pallet::Pallet::<R>::proxies(account_id);
+        let proxies_tuple = pallet_proxy::pallet::Pallet::<R>::proxies(account_id);
+        handle.record_db_read_encoded::<R>(&proxies_tuple)?;
         let mut result: Vec<(H256, U256, U256)> = vec![];
-        for proxy in proxies.0 {
+        for proxy in proxies_tuple.0 {
             let delegate: [u8; 32] = proxy.delegate.into();
             let proxy_type: u8 = proxy.proxy_type.into();
             let delay: u32 = proxy
@@ -288,11 +290,13 @@ where
     #[precompile::public("getLastCallResult(bytes32)")]
     #[precompile::view]
     pub fn get_last_call_result(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account_id: H256,
     ) -> EvmResult<(bool, bool)> {
         let account_id = R::AccountId::from(account_id.0.into());
-        match pallet_proxy::LastCallResult::<R>::get(account_id) {
+        let __matched_val = pallet_proxy::LastCallResult::<R>::get(account_id);
+        handle.record_db_read_encoded::<R>(&__matched_val)?;
+        match __matched_val {
             Some(result) => Ok((true, result.is_ok())),
             None => Ok((false, false)),
         }
@@ -312,11 +316,12 @@ where
     #[precompile::public("getAnnouncements(bytes32)")]
     #[precompile::view]
     pub fn get_announcements(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account_id: H256,
     ) -> EvmResult<Vec<(H256, H256, u32)>> {
         let account_id = R::AccountId::from(account_id.0.into());
         let announcements_tuple = pallet_proxy::Announcements::<R>::get(&account_id);
+        handle.record_db_read_encoded::<R>(&announcements_tuple)?;
         
         let mut result = vec![];
         for announcement in announcements_tuple.0 {

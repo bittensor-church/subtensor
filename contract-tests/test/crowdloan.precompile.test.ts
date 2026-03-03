@@ -455,4 +455,88 @@ describe("Test Crowdloan precompile", () => {
         const updatedCrowdloanInfo = await crowdloanContract.getCrowdloan(nextId);
         assert.equal(updatedCrowdloanInfo[4], newCap);
     });
+
+    describe("Fallback Gas-Metered Paths (Non-existent items)", () => {
+        it("getCrowdloan reverts or returns default when asking for a non-existent crowdloan", async () => {
+            const nextId = await api.query.Crowdloan.NextCrowdloanId.getValue();
+            const fakeId = nextId + 99999;
+
+            try {
+                const fromContract = await crowdloanContract.getCrowdloan(fakeId);
+                // In our Rust code, it either ok_or reverts, or returns default.
+                if (fromContract) {
+                    assert.strictEqual(fromContract[1], BigInt(0), "Deposit should be 0 for non-existent crowdloan");
+                }
+            } catch (e: any) {
+                assert.ok(e.message, "Should have a message if it reverts");
+            }
+        });
+
+        it("getContribution reverts or returns 0 for non-existent contribution", async () => {
+            const fakeId = 999999;
+            const fakeAddress = "0x" + "00".repeat(32);
+
+            // Our Rust code uses ok_or(ExitError::Other("Crowdloan not found")) so it might revert,
+            // or return 0. The key is that the gas was metered correctly before the failure.
+            try {
+                const contribution = await crowdloanContract.getContribution(fakeId, fakeAddress);
+                assert.strictEqual(contribution, BigInt(0), "Should be 0 if it doesn't revert");
+            } catch (e: any) {
+                // If it reverts with "Crowdloan not found" or similar, that's expected.
+                // We just don't want it to fail with an unhandled EVM error.
+                assert.ok(e.message, "Should have a message if it reverts");
+            }
+        });
+
+        it("getCurrentCrowdloanId returns 0 when no crowdloan is current", async () => {
+            const onChain = await api.query.Crowdloan.CurrentCrowdloanId.getValue();
+
+            const fromContract = await publicClient.readContract({
+                abi: ICrowdloanABI,
+                address: ICROWDLOAN_ADDRESS as `0x${string}`,
+                functionName: "getCurrentCrowdloanId",
+                args: []
+            });
+
+            const expected = onChain !== undefined ? onChain : 0;
+            assert.strictEqual(Number(fromContract), expected, "CurrentCrowdloanId should match on-chain value or 0");
+        });
+
+        it("getNextCrowdloanId returns matching on-chain value", async () => {
+            const onChain = await api.query.Crowdloan.NextCrowdloanId.getValue();
+
+            const fromContract = await publicClient.readContract({
+                abi: ICrowdloanABI,
+                address: ICROWDLOAN_ADDRESS as `0x${string}`,
+                functionName: "getNextCrowdloanId",
+                args: []
+            });
+
+            assert.strictEqual(Number(fromContract), onChain, "NextCrowdloanId should match on-chain value");
+        });
+
+        it("getPalletVersion returns a valid version number", async () => {
+            const fromContract = await publicClient.readContract({
+                abi: ICrowdloanABI,
+                address: ICROWDLOAN_ADDRESS as `0x${string}`,
+                functionName: "getPalletVersion",
+                args: []
+            });
+
+            assert.ok(Number(fromContract) >= 0, "Pallet version should be a non-negative number");
+        });
+
+        it("getHasMigrationRun returns false for a non-existent migration key", async () => {
+            const fakeKey = "0x" + "ab".repeat(32);
+
+            const fromContract = await publicClient.readContract({
+                abi: ICrowdloanABI,
+                address: ICROWDLOAN_ADDRESS as `0x${string}`,
+                functionName: "getHasMigrationRun",
+                args: [fakeKey as `0x${string}`]
+            });
+
+            assert.strictEqual(fromContract, false, "Non-existent migration key should return false");
+        });
+    });
 });

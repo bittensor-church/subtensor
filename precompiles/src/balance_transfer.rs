@@ -8,7 +8,7 @@ use precompile_utils::EvmResult;
 use sp_core::{H256, U256};
 use sp_runtime::traits::{AsSystemOriginSigner, Dispatchable, StaticLookup, UniqueSaturatedInto};
 
-use crate::{PrecompileExt, PrecompileHandleExt};
+use crate::{PrecompileExt, PrecompileHandleExt, PrecompileHandleExtStorage};
 
 pub(crate) struct BalanceTransferPrecompile<R>(PhantomData<R>);
 
@@ -69,18 +69,21 @@ where
 
     #[precompile::public("getInactiveIssuance()")]
     #[precompile::view]
-    fn get_inactive_issuance(_handle: &mut impl PrecompileHandle) -> EvmResult<u64> {
-        Ok(pallet_balances::InactiveIssuance::<R>::get().unique_saturated_into())
+    fn get_inactive_issuance(handle: &mut impl PrecompileHandle) -> EvmResult<u64> {
+        let val = pallet_balances::InactiveIssuance::<R>::get();
+        handle.record_db_read_encoded::<R>(&val)?;
+        Ok(val.unique_saturated_into())
     }
 
     #[precompile::public("getAccount(bytes32)")]
     #[precompile::view]
     fn get_account(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account: H256,
     ) -> EvmResult<(u64, u64, u64, u64)> {
         let account_id = R::AccountId::from(account.0);
         let account_data = pallet_balances::Account::<R>::get(&account_id);
+        handle.record_db_read_encoded::<R>(&account_data)?;
         Ok((
             account_data.free.unique_saturated_into(),
             account_data.reserved.unique_saturated_into(),
@@ -92,11 +95,12 @@ where
     #[precompile::public("getLocks(bytes32)")]
     #[precompile::view]
     fn get_locks(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account: H256,
     ) -> EvmResult<sp_std::vec::Vec<(sp_core::H256, u64, u8)>> {
         let account_id = R::AccountId::from(account.0);
         let locks = pallet_balances::Locks::<R>::get(&account_id);
+        handle.record_db_read_encoded::<R>(&locks)?;
         
         // Convert to a format returnable by the EVM. Id is 8 bytes, so we pad it.
         let result = locks.into_iter().map(|lock| {
@@ -114,11 +118,12 @@ where
     #[precompile::public("getReserves(bytes32)")]
     #[precompile::view]
     fn get_reserves(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account: H256,
     ) -> EvmResult<sp_std::vec::Vec<(sp_core::H256, u64)>> {
         let account_id = R::AccountId::from(account.0);
         let reserves = pallet_balances::Reserves::<R>::get(&account_id);
+        handle.record_db_read_encoded::<R>(&reserves)?;
         
         let result = reserves.into_iter().map(|reserve| {
             use frame_support::pallet_prelude::Encode;
@@ -135,11 +140,12 @@ where
     #[precompile::public("getHolds(bytes32)")]
     #[precompile::view]
     fn get_holds(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account: H256,
     ) -> EvmResult<sp_std::vec::Vec<(sp_core::H256, u64)>> {
         let account_id = R::AccountId::from(account.0);
         let holds = pallet_balances::Holds::<R>::get(&account_id);
+        handle.record_db_read_encoded::<R>(&holds)?;
         
         let result = holds.into_iter().map(|hold| {
             use frame_support::pallet_prelude::Encode;
@@ -156,11 +162,12 @@ where
     #[precompile::public("getFreezes(bytes32)")]
     #[precompile::view]
     fn get_freezes(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account: H256,
     ) -> EvmResult<sp_std::vec::Vec<(sp_core::H256, u64)>> {
         let account_id = R::AccountId::from(account.0);
         let freezes = pallet_balances::Freezes::<R>::get(&account_id);
+        handle.record_db_read_encoded::<R>(&freezes)?;
         
         let result = freezes.into_iter().map(|freeze| {
             use frame_support::pallet_prelude::Encode;

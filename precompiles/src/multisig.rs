@@ -1,6 +1,6 @@
 use alloc::vec;
 use core::marker::PhantomData;
-use frame_support::traits::GetStorageVersion;
+
 
 use pallet_evm::PrecompileHandle;
 use precompile_utils::EvmResult;
@@ -9,7 +9,7 @@ use sp_core::H256;
 use frame_support::pallet_prelude::Encode;
 use sp_runtime::traits::UniqueSaturatedInto;
 
-use crate::PrecompileExt;
+use crate::{PrecompileExt, PrecompileHandleExtStorage};
 
 pub(crate) struct MultisigPrecompile<R>(PhantomData<R>);
 
@@ -35,7 +35,7 @@ where
     #[precompile::public("getMultisig(bytes32,bytes32)")]
     #[precompile::view]
     fn get_multisig(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account: H256,
         call_hash: H256,
     ) -> EvmResult<(u64, sp_std::vec::Vec<H256>, u16)> {
@@ -45,7 +45,9 @@ where
         let mut key = sp_std::vec::Vec::with_capacity(32);
         key.extend_from_slice(&hash_bytes);
         
-        match pallet_multisig::Multisigs::<R>::get(&account_id, &hash_bytes) {
+        let __matched_val = pallet_multisig::Multisigs::<R>::get(&account_id, &hash_bytes);
+        handle.record_db_read_encoded::<R>(&__matched_val)?;
+        match __matched_val {
             Some(multisig) => {
                 let approvals_len = multisig.approvals.len() as u16;
                 let approvals = multisig.approvals.into_iter().map(|a| {

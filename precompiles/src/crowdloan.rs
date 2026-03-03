@@ -1,8 +1,9 @@
 use alloc::string::String;
 use core::marker::PhantomData;
+use frame_support::pallet_prelude::Encode;
 
 use fp_evm::{ExitError, PrecompileFailure};
-use frame_support::traits::GetStorageVersion;
+
 use frame_support::dispatch::{DispatchInfo, GetDispatchInfo, PostDispatchInfo};
 use frame_support::traits::IsSubType;
 use frame_system::RawOrigin;
@@ -14,7 +15,8 @@ use precompile_utils::{EvmResult, solidity::Codec};
 use sp_core::{ByteArray, H256};
 use sp_runtime::traits::{AsSystemOriginSigner, Dispatchable, UniqueSaturatedInto};
 
-use crate::{PrecompileExt, PrecompileHandleExt};
+use precompile_utils::prelude::PrecompileHandleExt as _;
+use crate::{PrecompileExt, PrecompileHandleExt, PrecompileHandleExtStorage};
 
 pub struct CrowdloanPrecompile<R>(PhantomData<R>);
 
@@ -68,14 +70,14 @@ where
     #[precompile::public("getCrowdloan(uint32)")]
     #[precompile::view]
     fn get_crowdloan(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         crowdloan_id: u32,
     ) -> EvmResult<CrowdloanInfo> {
-        let crowdloan = pallet_crowdloan::Crowdloans::<R>::get(crowdloan_id).ok_or(
-            PrecompileFailure::Error {
-                exit_status: ExitError::Other("Crowdloan not found".into()),
-            },
-        )?;
+        let raw = pallet_crowdloan::Crowdloans::<R>::get(crowdloan_id);
+        handle.record_db_read::<R>(raw.encoded_size().max(1))?;
+        let crowdloan = raw.ok_or(PrecompileFailure::Error {
+            exit_status: ExitError::Other("Crowdloan not found".into()),
+        })?;
 
         Ok(CrowdloanInfo {
             creator: H256::from_slice(crowdloan.creator.as_slice()),
@@ -98,17 +100,16 @@ where
     #[precompile::public("getContribution(uint32,bytes32)")]
     #[precompile::view]
     fn get_contribution(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         crowdloan_id: u32,
         coldkey: H256,
     ) -> EvmResult<u64> {
         let coldkey = R::AccountId::from(coldkey.0);
-        let contribution = pallet_crowdloan::Contributions::<R>::get(crowdloan_id, coldkey).ok_or(
-            PrecompileFailure::Error {
-                exit_status: ExitError::Other("Crowdloan or contribution not found".into()),
-            },
-        )?;
-
+        let raw = pallet_crowdloan::Contributions::<R>::get(crowdloan_id, coldkey);
+        handle.record_db_read::<R>(raw.encoded_size().max(1))?;
+        let contribution = raw.ok_or(PrecompileFailure::Error {
+            exit_status: ExitError::Other("Crowdloan or contribution not found".into()),
+        })?;
         Ok(contribution)
     }
 
@@ -239,27 +240,37 @@ where
     /// Returns the next crowdloan ID that will be assigned.
     #[precompile::public("getNextCrowdloanId()")]
     #[precompile::view]
-    fn get_next_crowdloan_id(_handle: &mut impl PrecompileHandle) -> EvmResult<u32> {
-        Ok(pallet_crowdloan::NextCrowdloanId::<R>::get())
+    fn get_next_crowdloan_id(handle: &mut impl PrecompileHandle) -> EvmResult<u32> {
+        {
+            let val = pallet_crowdloan::NextCrowdloanId::<R>::get();
+        handle.record_db_read_encoded::<R>(&val)?;
+            Ok(val)
+        }
     }
 
     /// Returns the current crowdloan ID (set during finalize, 0 if none active).
     #[precompile::public("getCurrentCrowdloanId()")]
     #[precompile::view]
-    fn get_current_crowdloan_id(_handle: &mut impl PrecompileHandle) -> EvmResult<u32> {
-        Ok(pallet_crowdloan::CurrentCrowdloanId::<R>::get().unwrap_or(0))
+    fn get_current_crowdloan_id(handle: &mut impl PrecompileHandle) -> EvmResult<u32> {
+        let val = pallet_crowdloan::CurrentCrowdloanId::<R>::get();
+        handle.record_db_read_encoded::<R>(&val)?;
+        Ok(val.unwrap_or(0))
     }
 
     /// Returns if a specific migration has run.
     #[precompile::public("getHasMigrationRun(bytes32)")]
     #[precompile::view]
     fn get_has_migration_run(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         migration_hash: H256,
     ) -> EvmResult<bool> {
         let hash_bytes: [u8; 32] = migration_hash.0;
         let bounded_key: sp_runtime::BoundedVec<u8, _> = sp_runtime::BoundedVec::try_from(hash_bytes.to_vec()).unwrap_or_default();
-        Ok(pallet_crowdloan::HasMigrationRun::<R>::get(&bounded_key))
+        {
+            let val = pallet_crowdloan::HasMigrationRun::<R>::get(&bounded_key);
+        handle.record_db_read_encoded::<R>(&val)?;
+            Ok(val)
+        }
     }
 
     /// Returns the current pallet version from storage.

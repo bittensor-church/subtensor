@@ -358,3 +358,25 @@ fn parse_slice(data: &[u8], from: usize, to: usize) -> Result<&[u8], PrecompileF
         })
     }
 }
+
+/// Helper trait to easily record DB reads for scaled structures.
+pub trait PrecompileHandleExtStorage {
+    /// Records the cost of a DB read based on the SCALE encoded size of the value.
+    /// It enforces a minimum read cost of 1 byte to prevent spamming.
+    fn record_db_read_encoded<R: pallet_evm::Config>(
+        &mut self,
+        value: &impl frame_support::pallet_prelude::Encode,
+    ) -> Result<(), PrecompileFailure>;
+}
+
+impl<T: PrecompileHandle> PrecompileHandleExtStorage for T {
+    fn record_db_read_encoded<R: pallet_evm::Config>(
+        &mut self,
+        value: &impl frame_support::pallet_prelude::Encode,
+    ) -> Result<(), PrecompileFailure> {
+        let size = value.encoded_size();
+        let cost = if size > 0 { size } else { 1 };
+        precompile_utils::prelude::PrecompileHandleExt::record_db_read::<R>(self, cost)
+            .map_err(|e| PrecompileFailure::Error { exit_status: e })
+    }
+}
