@@ -23,6 +23,7 @@ pub mod pallet {
     use super::*;
     use frame_support::pallet_prelude::*;
     use frame_support::traits::tokens::Balance;
+    use subtensor_macros::freeze_struct;
     use frame_support::{dispatch::DispatchResult, pallet_prelude::StorageMap};
     use frame_system::pallet_prelude::*;
     use pallet_evm_chain_id::{self, ChainId};
@@ -90,6 +91,20 @@ pub mod pallet {
             /// Indicates if the Bonds Reset was enabled or disabled.
             enabled: bool,
         },
+        /// Event emitted when a deprecation info entry is set.
+        DeprecationInfoSet {
+            /// The precompile INDEX.
+            precompile_index: u64,
+            /// The function selector.
+            selector: [u8; 4],
+        },
+        /// Event emitted when a deprecation info entry is removed.
+        DeprecationInfoRemoved {
+            /// The precompile INDEX.
+            precompile_index: u64,
+            /// The function selector.
+            selector: [u8; 4],
+        },
     }
 
     // Errors inform users that something went wrong.
@@ -145,6 +160,34 @@ pub mod pallet {
         Leasing,
         /// Address mapping precompile
         AddressMapping,
+        /// Deprecation registry precompile
+        DeprecationRegistry,
+        /// Drand randomness precompile
+        Drand,
+        /// Timestamp precompile
+        Timestamp,
+        /// Scheduler precompile
+        Scheduler,
+        /// Sudo precompile
+        Sudo,
+        /// Multisig precompile
+        Multisig,
+        /// Swap precompile
+        Swap,
+        /// Subtensor extended precompile
+        Subtensor,
+    }
+
+    /// Deprecation info for a specific precompile function.
+    #[derive(Encode, Decode, DecodeWithMemTracking, TypeInfo, Clone, PartialEq, Eq, Debug)]
+    #[freeze_struct("f2b0e33f25db907f")]
+    pub struct DeprecationInfo {
+        /// Replacement precompile address (H160, 20 bytes)
+        pub new_precompile: [u8; 20],
+        /// Replacement function selector (4 bytes)
+        pub new_selector: [u8; 4],
+        /// Human-readable migration guidance (max 256 bytes)
+        pub message: BoundedVec<u8, ConstU32<256>>,
     }
 
     #[pallet::type_value]
@@ -162,6 +205,18 @@ pub mod pallet {
         bool,
         ValueQuery,
         DefaultPrecompileEnabled<T>,
+    >;
+
+    #[pallet::storage]
+    /// Map (precompile_index, function_selector) --> DeprecationInfo
+    pub type DeprecationRegistryStorage<T: Config> = StorageDoubleMap<
+        _,
+        Blake2_128Concat,
+        u64,
+        Blake2_128Concat,
+        [u8; 4],
+        DeprecationInfo,
+        OptionQuery,
     >;
 
     /// Dispatchable functions allows users to interact with the pallet and invoke state changes.
@@ -2114,6 +2169,55 @@ pub mod pallet {
             ensure_root(origin)?;
             pallet_subtensor::Pallet::<T>::set_start_call_delay(delay);
             log::debug!("StartCallDelay( delay: {delay:?} ) ");
+            Ok(())
+        }
+
+        /// Registers or updates deprecation metadata for a precompile function.
+        /// Only callable by root.
+        #[pallet::call_index(86)]
+        #[pallet::weight(Weight::from_parts(14_000_000, 0)
+        .saturating_add(<T as frame_system::Config>::DbWeight::get().writes(1)))]
+        pub fn sudo_set_deprecation_info(
+            origin: OriginFor<T>,
+            precompile_index: u64,
+            selector: [u8; 4],
+            new_precompile: [u8; 20],
+            new_selector: [u8; 4],
+            message: BoundedVec<u8, ConstU32<256>>,
+        ) -> DispatchResult {
+            ensure_root(origin)?;
+            DeprecationRegistryStorage::<T>::insert(
+                precompile_index,
+                selector,
+                DeprecationInfo {
+                    new_precompile,
+                    new_selector,
+                    message,
+                },
+            );
+            Self::deposit_event(Event::DeprecationInfoSet {
+                precompile_index,
+                selector,
+            });
+            Ok(())
+        }
+
+        /// Removes deprecation metadata for a precompile function.
+        /// Only callable by root.
+        #[pallet::call_index(87)]
+        #[pallet::weight(Weight::from_parts(14_000_000, 0)
+        .saturating_add(<T as frame_system::Config>::DbWeight::get().writes(1)))]
+        pub fn sudo_remove_deprecation_info(
+            origin: OriginFor<T>,
+            precompile_index: u64,
+            selector: [u8; 4],
+        ) -> DispatchResult {
+            ensure_root(origin)?;
+            DeprecationRegistryStorage::<T>::remove(precompile_index, selector);
+            Self::deposit_event(Event::DeprecationInfoRemoved {
+                precompile_index,
+                selector,
+            });
             Ok(())
         }
     }

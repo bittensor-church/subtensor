@@ -30,6 +30,8 @@ use crate::address_mapping::*;
 use crate::alpha::*;
 use crate::balance_transfer::*;
 use crate::crowdloan::*;
+use crate::deprecation_registry::*;
+use crate::drand::*;
 use crate::ed25519::*;
 use crate::extensions::*;
 use crate::leasing::*;
@@ -37,15 +39,23 @@ use crate::metagraph::*;
 use crate::neuron::*;
 use crate::proxy::*;
 use crate::sr25519::*;
+use crate::scheduler::*;
+use crate::sudo::*;
+use crate::multisig::*;
 use crate::staking::*;
 use crate::storage_query::*;
 use crate::subnet::*;
+use crate::timestamp_precompile::*;
 use crate::uid_lookup::*;
+use crate::swap::SwapPrecompile;
+use crate::subtensor::SubtensorPrecompile;
 
 mod address_mapping;
 mod alpha;
 mod balance_transfer;
 mod crowdloan;
+mod deprecation_registry;
+mod drand;
 mod ed25519;
 mod extensions;
 mod leasing;
@@ -53,10 +63,17 @@ mod metagraph;
 mod neuron;
 mod proxy;
 mod sr25519;
+mod scheduler;
+mod sudo;
+mod multisig;
 mod staking;
 mod storage_query;
 mod subnet;
+#[path = "timestamp.rs"]
+mod timestamp_precompile;
 mod uid_lookup;
+mod subtensor;
+mod swap;
 
 pub struct Precompiles<R>(PhantomData<R>);
 
@@ -70,6 +87,11 @@ where
         + pallet_subtensor_swap::Config
         + pallet_proxy::Config<ProxyType = ProxyType>
         + pallet_crowdloan::Config
+        + pallet_drand::Config
+        + pallet_timestamp::Config
+        + pallet_scheduler::Config
+        + pallet_sudo::Config
+        + pallet_multisig::Config
         + Send
         + Sync
         + scale_info::TypeInfo,
@@ -103,6 +125,11 @@ where
         + pallet_subtensor_swap::Config
         + pallet_proxy::Config<ProxyType = ProxyType>
         + pallet_crowdloan::Config
+        + pallet_drand::Config
+        + pallet_timestamp::Config
+        + pallet_scheduler::Config
+        + pallet_sudo::Config
+        + pallet_multisig::Config
         + Send
         + Sync
         + scale_info::TypeInfo,
@@ -125,7 +152,7 @@ where
         Self(Default::default())
     }
 
-    pub fn used_addresses() -> [H160; 26] {
+    pub fn used_addresses() -> [H160; 34] {
         [
             hash(1),
             hash(2),
@@ -153,6 +180,14 @@ where
             hash(LeasingPrecompile::<R>::INDEX),
             hash(ProxyPrecompile::<R>::INDEX),
             hash(AddressMappingPrecompile::<R>::INDEX),
+            hash(DeprecationRegistryPrecompile::<R>::INDEX),
+            hash(DrandPrecompile::<R>::INDEX),
+            hash(TimestampPrecompile::<R>::INDEX),
+            hash(SchedulerPrecompile::<R>::INDEX),
+            hash(SudoPrecompile::<R>::INDEX),
+            hash(MultisigPrecompile::<R>::INDEX),
+            hash(SwapPrecompile::<R>::INDEX),
+            hash(SubtensorPrecompile::<R>::INDEX),
         ]
     }
 }
@@ -166,6 +201,11 @@ where
         + pallet_subtensor_swap::Config
         + pallet_proxy::Config<ProxyType = ProxyType>
         + pallet_crowdloan::Config
+        + pallet_drand::Config
+        + pallet_timestamp::Config
+        + pallet_scheduler::Config
+        + pallet_sudo::Config
+        + pallet_multisig::Config
         + Send
         + Sync
         + scale_info::TypeInfo,
@@ -254,6 +294,33 @@ where
                     PrecompileEnum::AddressMapping,
                 )
             }
+            a if a == hash(DeprecationRegistryPrecompile::<R>::INDEX) => {
+                DeprecationRegistryPrecompile::<R>::try_execute::<R>(
+                    handle,
+                    PrecompileEnum::DeprecationRegistry,
+                )
+            }
+            a if a == hash(DrandPrecompile::<R>::INDEX) => {
+                DrandPrecompile::<R>::try_execute::<R>(handle, PrecompileEnum::Drand)
+            }
+            a if a == hash(TimestampPrecompile::<R>::INDEX) => {
+                TimestampPrecompile::<R>::try_execute::<R>(handle, PrecompileEnum::Timestamp)
+            }
+            a if a == hash(SchedulerPrecompile::<R>::INDEX) => {
+                SchedulerPrecompile::<R>::try_execute::<R>(handle, PrecompileEnum::Scheduler)
+            }
+            a if a == hash(SudoPrecompile::<R>::INDEX) => {
+                SudoPrecompile::<R>::try_execute::<R>(handle, PrecompileEnum::Sudo)
+            }
+            a if a == hash(MultisigPrecompile::<R>::INDEX) => {
+                MultisigPrecompile::<R>::try_execute::<R>(handle, PrecompileEnum::Multisig)
+            }
+            a if a == hash(SwapPrecompile::<R>::INDEX) => {
+                SwapPrecompile::<R>::try_execute::<R>(handle, PrecompileEnum::Swap)
+            }
+            a if a == hash(SubtensorPrecompile::<R>::INDEX) => {
+                SubtensorPrecompile::<R>::try_execute::<R>(handle, PrecompileEnum::Subtensor)
+            }
             _ => None,
         }
     }
@@ -289,5 +356,27 @@ fn parse_slice(data: &[u8], from: usize, to: usize) -> Result<&[u8], PrecompileF
         Err(PrecompileFailure::Error {
             exit_status: ExitError::InvalidRange,
         })
+    }
+}
+
+/// Helper trait to easily record DB reads for scaled structures.
+pub trait PrecompileHandleExtStorage {
+    /// Records the cost of a DB read based on the SCALE encoded size of the value.
+    /// It enforces a minimum read cost of 1 byte to prevent spamming.
+    fn record_db_read_encoded<R: pallet_evm::Config>(
+        &mut self,
+        value: &impl frame_support::pallet_prelude::Encode,
+    ) -> Result<(), PrecompileFailure>;
+}
+
+impl<T: PrecompileHandle> PrecompileHandleExtStorage for T {
+    fn record_db_read_encoded<R: pallet_evm::Config>(
+        &mut self,
+        value: &impl frame_support::pallet_prelude::Encode,
+    ) -> Result<(), PrecompileFailure> {
+        let size = value.encoded_size();
+        let cost = if size > 0 { size } else { 1 };
+        precompile_utils::prelude::PrecompileHandleExt::record_db_read::<R>(self, cost)
+            .map_err(|e| PrecompileFailure::Error { exit_status: e })
     }
 }

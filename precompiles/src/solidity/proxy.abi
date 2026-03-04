@@ -151,8 +151,64 @@
     "outputs": [
       {
         "name": "",
-        "type": "bytes32[]",
-        "internalType": "bytes32[]"
+        "type": "ProxyInfo[]",
+        "internalType": "ProxyInfo[]"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getLastCallResult",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPalletVersion",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint16",
+        "internalType": "uint16"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getAnnouncements",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "Announcement[]",
+        "internalType": "Announcement[]"
       }
     ],
     "stateMutability": "view"

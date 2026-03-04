@@ -439,6 +439,16 @@ where
 
         Ok(stake.to_u64().into())
     }
+
+    /// Returns the current pallet version from storage.
+    #[precompile::public("getPalletVersion()")]
+    #[precompile::view]
+    fn get_pallet_version(_handle: &mut impl PrecompileHandle) -> EvmResult<u16> {
+        Ok(
+            <pallet_subtensor::Pallet<R> as frame_support::traits::PalletInfoAccess>::crate_version()
+                .major as u16
+        )
+    }
 }
 
 // Deprecated, exists for backward compatibility.

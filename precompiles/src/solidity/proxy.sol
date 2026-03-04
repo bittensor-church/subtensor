@@ -49,4 +49,25 @@ interface IProxy {
     function getProxies(
         bytes32 account
     ) external view returns (ProxyInfo[] memory);
+
+    /// @dev Returns the result of the last proxy call for an account.
+    /// @param account The account ID (bytes32).
+    /// @return exists True if a call result is stored.
+    /// @return success True if the last proxy call succeeded.
+    function getLastCallResult(
+        bytes32 account
+    ) external view returns (bool exists, bool success);
+
+    /// @dev Returns the current pallet version from storage.
+    function getPalletVersion() external view returns (uint16);
+
+    struct Announcement {
+        bytes32 real;
+        bytes32 call_hash;
+        uint32 height;
+    }
+
+    /// @dev Returns the announcements made by the proxy.
+    /// @param account The account ID (bytes32).
+    function getAnnouncements(bytes32 account) external view returns (Announcement[] memory);
 }

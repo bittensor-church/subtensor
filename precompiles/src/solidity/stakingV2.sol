@@ -310,4 +310,8 @@ interface IStaking {
         uint256 amount,
         uint256 netuid
     ) external payable;
+
+    /// @dev Returns the current pallet version from storage.
+    /// @return The pallet version.
+    function getPalletVersion() external view returns (uint16);
 }

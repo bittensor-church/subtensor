@@ -1,6 +1,6 @@
 use core::marker::PhantomData;
 
-use crate::{PrecompileExt, PrecompileHandleExt};
+use crate::{PrecompileExt, PrecompileHandleExt, PrecompileHandleExtStorage};
 
 use alloc::format;
 use fp_evm::{ExitError, PrecompileFailure};
@@ -180,6 +180,7 @@ where
         let real_account_id = R::AccountId::from(real.0.into());
 
         let last_call_result = pallet_proxy::LastCallResult::<R>::get(real_account_id);
+        handle.record_db_read_encoded::<R>(&last_call_result)?;
         match last_call_result {
             Some(last_call_result) => match last_call_result {
                 Ok(()) => Ok(()),
@@ -260,14 +261,15 @@ where
     #[precompile::public("getProxies(bytes32)")]
     #[precompile::view]
     pub fn get_proxies(
-        _handle: &mut impl PrecompileHandle,
+        handle: &mut impl PrecompileHandle,
         account_id: H256,
     ) -> EvmResult<Vec<(H256, U256, U256)>> {
         let account_id = R::AccountId::from(account_id.0.into());
 
-        let proxies = pallet_proxy::pallet::Pallet::<R>::proxies(account_id);
+        let proxies_tuple = pallet_proxy::pallet::Pallet::<R>::proxies(account_id);
+        handle.record_db_read_encoded::<R>(&proxies_tuple)?;
         let mut result: Vec<(H256, U256, U256)> = vec![];
-        for proxy in proxies.0 {
+        for proxy in proxies_tuple.0 {
             let delegate: [u8; 32] = proxy.delegate.into();
             let proxy_type: u8 = proxy.proxy_type.into();
             let delay: u32 = proxy
@@ -278,6 +280,81 @@ where
                 })?;
 
             result.push((delegate.into(), proxy_type.into(), delay.into()));
+        }
+
+        Ok(result)
+    }
+
+    /// Returns the result of the last proxy call for an account.
+    /// Returns (exists, success) — exists is true if a result is stored, success is true if it succeeded.
+    #[precompile::public("getLastCallResult(bytes32)")]
+    #[precompile::view]
+    pub fn get_last_call_result(
+        handle: &mut impl PrecompileHandle,
+        account_id: H256,
+    ) -> EvmResult<(bool, bool)> {
+        let account_id = R::AccountId::from(account_id.0.into());
+        let __matched_val = pallet_proxy::LastCallResult::<R>::get(account_id);
+        handle.record_db_read_encoded::<R>(&__matched_val)?;
+        match __matched_val {
+            Some(result) => Ok((true, result.is_ok())),
+            None => Ok((false, false)),
+        }
+    }
+
+    /// Returns the current pallet version from storage.
+    #[precompile::public("getPalletVersion()")]
+    #[precompile::view]
+    pub fn get_pallet_version(_handle: &mut impl PrecompileHandle) -> EvmResult<u16> {
+        Ok(
+            <pallet_proxy::pallet::Pallet<R> as frame_support::traits::PalletInfoAccess>::crate_version()
+                .major as u16
+        )
+    }
+
+    /// Returns the announcements made by the proxy.
+    #[precompile::public("getAnnouncements(bytes32)")]
+    #[precompile::view]
+    pub fn get_announcements(
+        handle: &mut impl PrecompileHandle,
+        account_id: H256,
+    ) -> EvmResult<Vec<(H256, H256, u32)>> {
+        let account_id = R::AccountId::from(account_id.0.into());
+        let announcements_tuple = pallet_proxy::Announcements::<R>::get(&account_id);
+        handle.record_db_read_encoded::<R>(&announcements_tuple)?;
+        
+        let mut result = vec![];
+        for announcement in announcements_tuple.0 {
+            use frame_support::pallet_prelude::Encode;
+            use sp_runtime::codec::Decode;
+            let encoded = announcement.encode();
+            
+            let maybe_decoded = <(
+                R::AccountId,
+                <<R as pallet_proxy::Config>::CallHasher as sp_runtime::traits::Hash>::Output,
+                <<<R as frame_system::Config>::Block as sp_runtime::traits::Block>::Header as sp_runtime::traits::Header>::Number,
+            )>::decode(&mut &encoded[..]);
+            
+            if let Ok((real, call_hash, height)) = maybe_decoded {
+                let mut real_bytes = [0u8; 32];
+                let real_encoded = real.encode();
+                let len = core::cmp::min(real_encoded.len(), 32);
+                real_bytes[0..len].copy_from_slice(&real_encoded[0..len]);
+                
+                let mut hash_bytes = [0u8; 32];
+                let hash_encoded = call_hash.encode();
+                let len = core::cmp::min(hash_encoded.len(), 32);
+                hash_bytes[0..len].copy_from_slice(&hash_encoded[0..len]);
+                
+                use sp_runtime::traits::UniqueSaturatedInto;
+                let height_u32: u32 = height.unique_saturated_into();
+                
+                result.push((
+                    H256::from(real_bytes),
+                    H256::from(hash_bytes),
+                    height_u32,
+                ));
+            }
         }
 
         Ok(result)

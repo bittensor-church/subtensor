@@ -94,6 +94,31 @@ interface ICrowdloan {
      * @param newCap The new cap.
      */
     function updateCap(uint32 crowdloanId, uint64 newCap) external payable;
+
+    /**
+     * @dev Returns the next crowdloan ID that will be assigned.
+     * @return The next crowdloan ID.
+     */
+    function getNextCrowdloanId() external view returns (uint32);
+
+    /**
+     * @dev Returns the current crowdloan ID (set during finalize, 0 if none).
+     * @return The current crowdloan ID.
+     */
+    function getCurrentCrowdloanId() external view returns (uint32);
+
+    /**
+     * @dev Returns if a specific migration has run.
+     * @param migrationHash The hash of the migration.
+     * @return True if the migration has run.
+     */
+    function getHasMigrationRun(bytes32 migrationHash) external view returns (bool);
+
+    /**
+     * @dev Returns the current pallet version from storage.
+     * @return The pallet version.
+     */
+    function getPalletVersion() external view returns (uint16);
 }
 
 struct CrowdloanInfo {
